@@ -1,18 +1,23 @@
 const JWT_SECRET = require("../JWT_SECRET");
 const jwt = require("jsonwebtoken");
+const { LocalStorage } = require('node-localstorage');
+const localStorage = new LocalStorage('./scratch');
 
 const middleware = (req, res, next) => {
     const authToken = req.headers.authorization;
-
-    if (!authToken) {
+    // const authToken = localStorage.getItem('token');
+    console.log(authToken);
+    const tokenParts = authToken.split(' ');
+    const token = tokenParts[1];
+    console.log(token);
+    if (!token) {
         return res.status(401).json({
             msg: "JWT not found"
         });
     }
 
     try {
-        const tokenParts = authToken.split(' ');
-        const token = tokenParts[1];
+        // const token = authToken;
         
         if (!token) {
             return res.status(401).json({
@@ -25,7 +30,7 @@ const middleware = (req, res, next) => {
 
         if (decodedValue && decodedValue.username) {
             // Attach decoded token data to the request object for further use if needed
-            req.user = decodedValue;
+            req.username = decodedValue.username;
             next();
         } else {
             return res.status(403).json({
@@ -35,7 +40,7 @@ const middleware = (req, res, next) => {
     } catch (error) {
         console.error("Error in middleware", error);
         return res.status(500).json({
-            msg: "Internal server error"
+            msg: "Internal server error middleware"
         });
     }
 };

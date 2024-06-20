@@ -9,7 +9,7 @@ todoRoute.post("/createtodo",middleware,async(req,res)=>{
     const {success} = todoSchema.safeParse(req.body);
 
     if(!success){
-        res.status(404).json({
+        return res.status(404).json({
             msg:"Invailid data"
         })
     }
@@ -17,19 +17,22 @@ todoRoute.post("/createtodo",middleware,async(req,res)=>{
     const existingTODO = await TODO.findOne({
         title:req.body.title,
     })
+    console.log(existingTODO);
     if(existingTODO){
-        res.status(411).json({
+        return res.status(409).json({
             msg:"TODO exist ",
+            msg2:false,
         })
     }
     const newTODO = await TODO.create({
         title:req.body.title,
         description:req.body.description,
     })
-    res.status(200).json({
+    return res.status(200).json({
         msg:"Todo created Successfully ",
+        msg2:true,
     })
-}catch{
+}catch(error){
     console.error("Error while creating todo",error);
 }
 })
@@ -61,6 +64,16 @@ todoRoute.get("/completedTodo",middleware,async(req,res)=>{
     } catch (error) {
         console.error('Error retrieving completed todos:', error);
         res.status(500).json({ message: 'Internal server error' });
+    }
+})
+
+todoRoute.get("/allTodos",middleware,async(req,res)=>{
+    try {
+        const allTodos = await TODO.find({});
+        res.status(200).json(allTodos);
+    } catch (error) {
+        console.error('Error retrieving all todos:', error);
+        res.status(500).json({ message: 'Internal server error BE' });
     }
 })
 

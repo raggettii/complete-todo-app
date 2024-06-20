@@ -14,7 +14,7 @@ const signInSchema = z.object({
 });
 
 const todoSchema = z.object({
-    title:z.string().nonempty({message:"Title is required"}),
+    title:z.string(),
     description:z.string(),
 })
 

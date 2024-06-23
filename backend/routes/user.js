@@ -84,10 +84,10 @@ userRoute.post("/signin", async (req, res) => {
         const ifMatched = await verifyPassword(req.body.password, enteredUser.password);
 
         if (!ifMatched) {
-            return res.status(401).json({ msg: "Incorrect Password" });
+            return res.status(400).json({ msg: "Incorrect Password" });
         }
 
-        const expiresIn = '1h';
+        const expiresIn = "1h";
         const token = jwt.sign(
             { username: req.body.username },
             JWT_SECRET,

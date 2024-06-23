@@ -5,16 +5,15 @@ const localStorage = new LocalStorage('./scratch');
 
 const middleware = (req, res, next) => {
     const authToken = req.headers.authorization;
-    // const authToken = localStorage.getItem('token');
-    console.log(authToken);
-    const tokenParts = authToken.split(' ');
-    const token = tokenParts[1];
-    console.log(token);
-    if (!token) {
+    if (!authToken) {
         return res.status(401).json({
             msg: "JWT not found"
         });
     }
+    // console.log(authToken);
+    const tokenParts = authToken.split(' ');
+    const token = tokenParts[1];
+    // console.log(token);
 
     try {
         // const token = authToken;
@@ -25,11 +24,22 @@ const middleware = (req, res, next) => {
             });
         }
 
-        const decodedValue = jwt.verify(token, JWT_SECRET);
+        const decodedValue = jwt.verify(token, JWT_SECRET ,(err,res)=>{
+            if(err){
+                return "Token Expired";
+            }
+            else return res;
+        });
+        console.log(decodedValue);
+        if(decodedValue=="Token Expired"){
+            console.log("Halooo")
+            return res.status(401).json({
+                decodedValue
+            })
+        }
         console.log("Decoded Token:", decodedValue);
 
         if (decodedValue && decodedValue.username) {
-            // Attach decoded token data to the request object for further use if needed
             req.username = decodedValue.username;
             next();
         } else {

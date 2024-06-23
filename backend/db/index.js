@@ -38,16 +38,25 @@ const userSchema =new mongoose.Schema({
 });
 
 const todoSchema = new mongoose.Schema({
+    username:{
+        type:String,
+        required:true,
+    },
     title:{
         type:String,
         required:true,
     },
     description:{
-        type:String,
+        type:String ,
+        default: "None",
     }
 });
 
 const completedTODO  = new mongoose.Schema({
+    username:{
+        type:String,
+        required:true,
+    },
     title:{
         type:String,
         required:true,

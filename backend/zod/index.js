@@ -14,6 +14,7 @@ const signInSchema = z.object({
 });
 
 const todoSchema = z.object({
+    username:z.string(),
     title:z.string(),
     description:z.string(),
 })

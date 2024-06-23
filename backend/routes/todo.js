@@ -7,7 +7,6 @@ const   middleware =require ("../middlewares/index");
 
 todoRoute.post("/createtodo",middleware,async(req,res)=>{
     const {success} = todoSchema.safeParse(req.body);
-
     if(!success){
         return res.status(404).json({
             msg:"Invailid data"
@@ -15,16 +14,19 @@ todoRoute.post("/createtodo",middleware,async(req,res)=>{
     }
     try{
     const existingTODO = await TODO.findOne({
+        username:req.body.username,
         title:req.body.title,
     })
     console.log(existingTODO);
     if(existingTODO){
-        return res.status(409).json({
+        console.log("Hello")
+        return res.status(200).json({
             msg:"TODO exist ",
             msg2:false,
         })
     }
     const newTODO = await TODO.create({
+        username:req.body.username,
         title:req.body.title,
         description:req.body.description,
     })
@@ -38,43 +40,45 @@ todoRoute.post("/createtodo",middleware,async(req,res)=>{
 })
 
 
-todoRoute.post("/markAsDone",middleware,async(req,res)=>{
-    try{
-    const doneTodo = req.body.title;
-    await TODO.deleteOne({title:doneTodo});
-    await CompletedTodo.create({
-        title:doneTodo,
-    })
-    res.status(200).json({
-        msg:`Todo marked as done and moved to completed todos ie.${doneTodo}`,
-    })
-}
-    catch(error){
-        console.error("Error Encountered" , error);
+todoRoute.post("/markAsDone", middleware, async (req, res) => {
+    try {
+      const { title, username } = req.body;
+      await TODO.deleteOne({ title, username });
+      await CompletedTodo.create({ username, title });
+      res.status(200).json({
+        msg: `Todo marked as done and moved to completed todos: ${title}`,
+      });
+    } catch (error) {
+      console.error("Error marking as done:", error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-})
-
+  });
+  
 //  i can also do that here just use a bool variable 
 // inside todo db and mark completed one as true 
 // then render completed ones 
-todoRoute.get("/completedTodo",middleware,async(req,res)=>{
+todoRoute.get("/completedTodo", middleware, async (req, res) => {
     try {
-        const compTodos = await CompletedTodo.find({});
-        res.status(200).json(compTodos);
+      const username = req.query.username; // Retrieve from query parameters
+      const compTodos = await CompletedTodo.find({ username });
+      res.status(200).json(compTodos);
     } catch (error) {
-        console.error('Error retrieving completed todos:', error);
-        res.status(500).json({ message: 'Internal server error' });
+      console.error('Error retrieving completed todos:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-})
+  });
+  
 
-todoRoute.get("/allTodos",middleware,async(req,res)=>{
+todoRoute.get("/allTodos", middleware, async (req, res) => {
     try {
-        const allTodos = await TODO.find({});
-        res.status(200).json(allTodos);
+      const username = req.headers.username;
+      const allTodos = await TODO.find({ username });
+      res.status(200).json(allTodos);
     } catch (error) {
-        console.error('Error retrieving all todos:', error);
-        res.status(500).json({ message: 'Internal server error BE' });
+      console.error('Error retrieving all todos:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-})
+  });
+  
 
 module.exports = todoRoute;

@@ -16,11 +16,3 @@ authAxios.interceptors.request.use(
 );
 export {authAxios};
 
-// // Usage:
-// authAxios.post('http://localhost:3000/api/protected', { data: '...' })
-//   .then(response => {
-//     // Handle successful response
-//   })
-//   .catch(error => {
-//     // Handle errors
-//   });

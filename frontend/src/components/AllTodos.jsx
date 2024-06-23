@@ -1,57 +1,111 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { authAxios } from "../functions/authAxios";
-import { SubHeading } from "../components/SubHeading";
-import { MarkAsDone } from "../components/MarkAsDone";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
-const AllTodos = () => {
-  const [checkedTodoId, setCheckedTodoId] = useState(null);
+const AllTodos = ({ showAll, setShowAll }) => {
   const [allTodos, setAllTodos] = useState([]);
+  const username = localStorage.getItem("username");
+  const navigate = useNavigate();
+
+  const handleSelected = async (event, item) => {
+    const isChecked = event.target.checked;
+
+    if (isChecked) {
+      try {
+        await authAxios.post("http://localhost:3000/api/v1/todo/markAsDone", {
+          title: item.title,
+          username: username,
+        });
+        console.log("Checked item title:", item.title);
+        // Remove item from allTodos after marking as done
+        setAllTodos((prev) => prev.filter((todo) => todo._id !== item._id));
+      } catch (error) {
+        console.error("Error marking as done:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await authAxios.get("http://localhost:3000/api/v1/todo/allTodos");
+        const response = await authAxios.get("http://localhost:3000/api/v1/todo/allTodos", {
+          headers: {
+            username: username,
+          },
+        });
         setAllTodos(response.data);
       } catch (error) {
         console.error("Error fetching todos:", error);
+        if (error.response && error.response.status === 401) {
+          handleTokenExpired();
+        }
       }
     };
 
-    fetchData();
-  }, [allTodos]);
+    if (showAll) {
+      fetchData();
+    }
+  }, [showAll]);
 
-  const handleCheckboxChange = (todoId) => {
-    setCheckedTodoId(checkedTodoId === todoId ? null : todoId);
+  const handleTokenExpired = () => {
+    // Avoid multiple alerts
+    if (!localStorage.getItem("tokenExpiredAlertShown")) {
+      alert("Token Expired");
+      localStorage.setItem("tokenExpiredAlertShown", "true");
+
+      console.log("Authentication error (401): Token Expired");
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      navigate("/signin");
+    }
   };
 
   return (
-    <div>
-      <SubHeading data={"All Todos"} />
-      {allTodos.length > 0 ? (
-        <ul className="flex flex-col justify-center">
-          {allTodos.map((item) => (
-            <li className="border border-red-950 shadow-xl rounded-xl my-2 p-1" key={item.id}>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id={`todo-checkbox-${item.id}`}
-                  checked={checkedTodoId === item.id}
-                  onChange={() => handleCheckboxChange(item.id)}
-                  className="m-1 p-1"
-                />
-                <div className="flex-1">
-                  <strong>Title:</strong> {item.title} <br />
-                  <strong>Description:</strong> {item.description}
-                </div>
-              </div>
-              {checkedTodoId === item.id && <MarkAsDone doneTodo={item} />}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>Loading data...</p>
+    <>
+      {showAll && (
+        <div className="fixed inset-0 mt-[65px] bg-black bg-opacity-30 backdrop-blur-2xl">
+          <div
+            className="flex justify-end fa-2xl mr-8 ml-auto cursor-pointer"
+            onClick={() => setShowAll(false)}
+          >
+            <FontAwesomeIcon icon={faXmark} />
+          </div>
+          <div className="text-white font-extrabold text-5xl text-center mb-8 p-3">
+            Tasks to Complete
+          </div>
+          <div className="flex flex-col justify-center items-center gap-3 text-center">
+            {allTodos.length !== 0 ? (
+              <ul>
+                {allTodos.map((item) => (
+                  <li key={item._id}>
+                    <div className="mt-2 w-80 text-bold bg-white border-teal-800 rounded-lg shadow-xl p-2">
+                      <input
+                        type="checkbox"
+                        className="form-checkbox h-5 w-5 text-blue-600"
+                        onChange={(event) => handleSelected(event, item)}
+                      />{" "}
+                      <span className="font-bold text-lg text-green-800">
+                        Title:{" "}
+                      </span>{" "}
+                      {item.title}
+                      <br />
+                      <span className="font-bold text-lg text-green-800">
+                        Description:{" "}
+                      </span>{" "}
+                      {item.description}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-center mt-80">No tasks Found</div>
+            )}
+          </div>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

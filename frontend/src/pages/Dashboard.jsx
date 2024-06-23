@@ -1,53 +1,159 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AllTodos } from '../components/AllTodos';
-import { CompletedTodos } from '../components/CompletedTodos';
-import { AppBar } from '../components/AppBar';
-import { Dropdown } from "../components/DropDown";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import backgroundImage from "../assets/image3.png";
 import { Submit } from "../components/Submit";
-import { Popup } from "../components/Popup";
+import { PopupModal } from "../components/PopupModal";
+import { CompletedTodos } from "../components/CompletedTodos";
+import { AllTodos } from "../components/AllTodos";
 
 const Dashboard = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [dropdown, setDropdown] = useState(false);
   const navigate = useNavigate();
-  const [showPopUp, setShowPopUp] = useState(false);
 
-  const handleOpenPopup = () => {
-    setShowPopUp(true);
+  useEffect(() => {
+    // Check if a valid token exists
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token); // Boolean cast to determine auth status
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    setIsAuthenticated(false); // Update state after logout
+    navigate("/signin");
   };
 
-  const handleClosePopup = () => {
-    setShowPopUp(false);
-  };
+  const handleDropdownToggle = () => setDropdown(!dropdown);
 
   return (
     <>
-      <AppBar />
-      <div className="bg-red-100 h-full flex justify-center">
-        <div className="flex flex-col items-center">
-          <div className="mt-5 mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl">
-            ToDo List
-          </div>
-          <Dropdown
-            trigger="View"
-            items={[
-              { label: 'All Todos', componentToRender: AllTodos },
-              { label: 'Completed Todos', componentToRender: CompletedTodos }
-            ]}
-          />
-          <Submit text="Add Task" onClick={handleOpenPopup} />
-          {showPopUp && <Popup onClose={handleClosePopup} />} {/* Render Popup conditionally */}
-          <Submit
-            text="LogOut"
-            onClick={() => {
-              localStorage.removeItem("token");
-              localStorage.removeItem("username");
-              navigate("/signin");
-            }}
-          />
-        </div>
+      <div
+        className="bg-cover bg-center h-screen bg-gray-300"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <header className="bg-blue-100">
+          <nav className="flex justify-between items-center h-16">
+            <a className="m-2 border border-black rounded-xl shadow-lg p-2 font-bold text-3xl font-mono">
+              TaskEase
+            </a>
+            <div className="hidden md:flex">
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              >
+                Dashboard
+              </a>
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer"
+                onClick={() => setShowAll(true)}
+              >
+                Tasks
+              </a>
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer whitespace-nowrap"
+                onClick={() => setShowModal(true)}
+              >
+                Add new Task
+              </a>
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer whitespace-nowrap"
+                onClick={() => setShowCompleted(true)}
+              >
+                Completed Tasks
+              </a>
+              {!isAuthenticated && (
+                <>
+                  <div className="hidden lg:flex mx-4">
+                    <Submit
+                      text={"SignIn"}
+                      onClick={() => navigate("/signin")}
+                    />
+                  </div>
+                  <div className="hidden lg:flex">
+                    <Submit
+                      text={"SignUp"}
+                      onClick={() => navigate("/signup")}
+                    />
+                  </div>
+                </>
+              )}
+              {isAuthenticated && (
+                <div className="hidden lg:flex">
+                  <Submit text={"LogOut"} onClick={handleLogout} />
+                </div>
+              )}
+            </div>
+            <div className="mr-3">
+              <FontAwesomeIcon
+                onClick={handleDropdownToggle}
+                className="flex md:hidden fa-lg cursor-pointer hover:text-red-900"
+                icon={faBars}
+              />
+            </div>
+          </nav>
+          {dropdown && (
+            <div className="bg-blue-100 h-screen flex flex-col items-center">
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              >
+                Dashboard
+              </a>
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer"
+                onClick={() => setShowAll(true)}
+              >
+                Tasks
+              </a>
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer whitespace-nowrap"
+                onClick={() => setShowModal(true)}
+              >
+                Add new Task
+              </a>
+              <a
+                className="m-4 font-bold hover:text-red-800 cursor-pointer whitespace-nowrap"
+                onClick={() => setShowCompleted(true)}
+              >
+                Completed Tasks
+              </a>
+              {!isAuthenticated && (
+                <>
+                  <Submit
+                    text={"SignIn"}
+                    onClick={() => navigate("/signin")}
+                  />
+                  <Submit
+                    text={"SignUp"}
+                    onClick={() => navigate("/signup")}
+                  />
+                </>
+              )}
+              {isAuthenticated && (
+                <Submit text={"LogOut"} onClick={handleLogout} />
+              )}
+            </div>
+          )}
+        </header>
+        <PopupModal showModal={showModal} setShowmodal={setShowModal} />
+        <CompletedTodos
+          showCompleted={showCompleted}
+          setShowCompleted={setShowCompleted}
+        />
+        <AllTodos showAll={showAll} setShowAll={setShowAll} />
       </div>
     </>
   );
-}
+};
 
 export { Dashboard };

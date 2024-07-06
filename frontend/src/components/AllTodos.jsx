@@ -14,10 +14,13 @@ const AllTodos = ({ showAll, setShowAll }) => {
 
     if (isChecked) {
       try {
-        await authAxios.post("http://localhost:3000/api/v1/todo/markAsDone", {
-          title: item.title,
-          username: username,
-        });
+        await authAxios.post(
+          "https://complete-todo-app.onrender.com/api/v1/todo/markAsDone",
+          {
+            title: item.title,
+            username: username,
+          }
+        );
         console.log("Checked item title:", item.title);
         // Remove item from allTodos after marking as done
         setAllTodos((prev) => prev.filter((todo) => todo._id !== item._id));
@@ -30,11 +33,14 @@ const AllTodos = ({ showAll, setShowAll }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await authAxios.get("http://localhost:3000/api/v1/todo/allTodos", {
-          headers: {
-            username: username,
-          },
-        });
+        const response = await authAxios.get(
+          "https://complete-todo-app.onrender.com/api/v1/todo/allTodos",
+          {
+            headers: {
+              username: username,
+            },
+          }
+        );
         setAllTodos(response.data);
       } catch (error) {
         console.error("Error fetching todos:", error);

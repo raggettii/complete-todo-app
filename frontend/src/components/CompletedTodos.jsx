@@ -12,7 +12,9 @@ const CompletedTodos = ({ showCompleted, setShowCompleted }) => {
     const fetchData = async () => {
       try {
         const username = localStorage.getItem("username");
-        const response = await authAxios.get(`http://localhost:3000/api/v1/todo/completedTodo?username=${username}`);
+        const response = await authAxios.get(
+          `https://complete-todo-app.onrender.com/api/v1/todo/completedTodo?username=${username}`
+        );
         setCompletedTodos(response.data);
       } catch (error) {
         console.error("Error fetching todos:", error);
@@ -33,10 +35,15 @@ const CompletedTodos = ({ showCompleted, setShowCompleted }) => {
     <>
       {showCompleted && (
         <div className="fixed inset-0 mt-[65px] bg-black backdrop-blur-2xl bg-opacity-30">
-          <div className="flex justify-end fa-2xl mr-[400px] ml-[1000px] cursor-pointer" onClick={() => setShowCompleted(false)}>
+          <div
+            className="flex justify-end fa-2xl mr-[400px] ml-[1000px] cursor-pointer"
+            onClick={() => setShowCompleted(false)}
+          >
             <FontAwesomeIcon icon={faXmark} />
           </div>
-          <div className="text-white font-extrabold text-5xl text-center mb-8 p-3">Completed Tasks</div>
+          <div className="text-white font-extrabold text-5xl text-center mb-8 p-3">
+            Completed Tasks
+          </div>
           <div className="flex flex-col justify-center items-center gap-3 text-center">
             {completedTodos.length !== 0 ? (
               <ul>

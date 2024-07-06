@@ -43,6 +43,7 @@
    cd taskease
 2. **Install Dependencies**:
    ````bash
+   cd ./backend
    npm install
    npm i express
    npm i cors
@@ -51,16 +52,18 @@
    npm i bcrypt
    npm i jsonwebtoken
    npm i dotenv
-3. **Set up environment variables**:
+   cd ./frontend
+   npm install
+4. **Set up environment variables**:
    Create a .env file in the root directory ie./backend and add the following variables:
    ````env
    MONGO_URL=mongodb://localhost:27017/taskease
    JWT_SECRET=your_jwt_secret
    PORT =3000
-4. **Start the backend server**:
+5. **Start the backend server**:
    ````bash
    node index.js
-5. **Start the frontend server**:
+6. **Start the frontend server**:
    ````bash
    npm run dev
 ## Contributions

@@ -14,7 +14,15 @@ const Dashboard = () => {
   const [showAll, setShowAll] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [dropdown, setDropdown] = useState(false);
+  const array = [setShowAll, setShowModal, setDropdown, setShowCompleted];
   const navigate = useNavigate();
+  const func = (exceptIt) => {
+    array.map((item) => {
+      if (item != exceptIt) {
+        item(false);
+      } else item(true);
+    });
+  };
 
   useEffect(() => {
     // Check if a valid token exists
@@ -55,19 +63,19 @@ const Dashboard = () => {
               </a>
               <a
                 className="m-4 font-bold hover:text-red-800 cursor-pointer"
-                onClick={() => setShowAll(true)}
+                onClick={() => func(setShowAll)}
               >
                 Tasks
               </a>
               <a
                 className="m-4 font-bold hover:text-red-800 cursor-pointer whitespace-nowrap"
-                onClick={() => setShowModal(true)}
+                onClick={() => func(setShowModal)}
               >
                 Add new Task
               </a>
               <a
                 className="m-4 font-bold hover:text-red-800 cursor-pointer whitespace-nowrap"
-                onClick={() => setShowCompleted(true)}
+                onClick={() => func(setShowCompleted)}
               >
                 Completed Tasks
               </a>
@@ -129,14 +137,8 @@ const Dashboard = () => {
               </a>
               {!isAuthenticated && (
                 <>
-                  <Submit
-                    text={"SignIn"}
-                    onClick={() => navigate("/signin")}
-                  />
-                  <Submit
-                    text={"SignUp"}
-                    onClick={() => navigate("/signup")}
-                  />
+                  <Submit text={"SignIn"} onClick={() => navigate("/signin")} />
+                  <Submit text={"SignUp"} onClick={() => navigate("/signup")} />
                 </>
               )}
               {isAuthenticated && (

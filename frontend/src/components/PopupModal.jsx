@@ -40,10 +40,10 @@ const PopupModal = ({ showModal, setShowmodal }) => {
   return (
     <>
       {showModal && (
-        <div className="bg-black background-blur-sm fixed inset-0 bg-opacity-30">
-          <div className="mt-10 flex flex-col gap-5 items-center  ">
+        <div className="mt-16 bg-black background-blur-sm fixed inset-0 bg-opacity-30">
+          <div className=" flex flex-col gap-5 items-center  ">
             <div
-              className="place-self-end fa-xl  mt-[140px] mr-[530px] cursor-pointer"
+              className="place-self-end fa-xl  mt-[140px] mr-[445px] cursor-pointer"
               onClick={() => {
                 setShowmodal(false);
               }}
